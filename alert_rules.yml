@@ -1,0 +1,58 @@
+groups:
+  - name: telco_churn_alerts
+    interval: 30s
+    rules:
+      # Alert untuk model accuracy rendah
+      - alert: LowModelAccuracy
+        expr: model_accuracy_gauge < 0.70
+        for: 5m
+        labels:
+          severity: critical
+          username: wandi_filemon_hotmartua_sianturi_7cZX
+        annotations:
+          summary: "Model accuracy terlalu rendah"
+          description: "Model accuracy saat ini {{ $value | humanizePercentage }} di bawah threshold 70%"
+
+      # Alert untuk churn rate tinggi
+      - alert: HighChurnRate
+        expr: customer_churn_rate > 30
+        for: 10m
+        labels:
+          severity: warning
+          username: wandi_filemon_hotmartua_sianturi_7cZX
+        annotations:
+          summary: "Churn rate pelanggan tinggi"
+          description: "Churn rate saat ini {{ $value }}% melebihi 30%"
+
+      # Alert untuk prediction latency tinggi
+      - alert: HighPredictionLatency
+        expr: histogram_quantile(0.95, rate(api_response_time_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          username: wandi_filemon_hotmartua_sianturi_7cZX
+        annotations:
+          summary: "Latency prediksi terlalu tinggi"
+          description: "95th percentile latency {{ $value }}s melebihi 500ms"
+
+      # Alert untuk data drift
+      - alert: DataDriftDetected
+        expr: data_drift_score > 0.2
+        for: 15m
+        labels:
+          severity: warning
+          username: wandi_filemon_hotmartua_sianturi_7cZX
+        annotations:
+          summary: "Data drift terdeteksi"
+          description: "Data drift score {{ $value }} melebihi threshold 0.2"
+
+      # Alert untuk service down
+      - alert: ModelServiceDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+          username: wandi_filemon_hotmartua_sianturi_7cZX
+        annotations:
+          summary: "Model service down"
+          description: "Service {{ $labels.job }} tidak responsif selama 2 menit"
